@@ -2,12 +2,11 @@
 
 namespace Control\Exceptions;
 
-/**
- *
- * @author scottsmall
- *        
- */
+use Library\Logging\LoggingTrait;
+
 abstract class AbstractException extends \Exception {
+	
+	use LoggingTrait;
 
 	/**
 	 *
@@ -22,7 +21,9 @@ abstract class AbstractException extends \Exception {
 	 *        	
 	 */
 	public function __construct( $message = null, $code = null, $previous = null ) {
-
+		
+		// TODO - log message
+		
 		parent::__construct( $message = null, $code = null, $previous = null );
 	}
 
