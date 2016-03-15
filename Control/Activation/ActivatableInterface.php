@@ -2,7 +2,7 @@
 
 namespace Control\Activation;
 
-interface ActivatorInterface {
+interface ActivatableInterface {
 
 	public static function activate();
 
