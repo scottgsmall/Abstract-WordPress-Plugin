@@ -2,7 +2,7 @@
 
 namespace Control\Activation;
 
-abstract class AbstractActivator implements ActivatorInterface {
+abstract class AbstractActivator implements ActivatableInterface {
 
 	/**
 	 * @return array of classes (fully qualified class names) requiring static
