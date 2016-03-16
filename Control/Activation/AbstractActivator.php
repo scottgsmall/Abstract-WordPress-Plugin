@@ -14,7 +14,7 @@ abstract class AbstractActivator implements ActivatableInterface {
 	abstract protected static function get_activatable_classes();
 
 	/**
-	 * Do all plugin-specific activation work, other than activating classes.
+	 * Do plugin-specific activation work (if any), other than activating classes.
 	 */
 	abstract protected static function activate_plugin();
 
