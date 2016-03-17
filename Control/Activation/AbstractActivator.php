@@ -30,6 +30,12 @@ abstract class AbstractActivator implements ActivatableInterface {
 	 */
 	public static function activate() {
 
+		if ( ! current_user_can( 'activate_plugins' ) )
+			return;
+		
+		$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : '';
+		check_admin_referer( "activate-plugin_{$plugin}" );
+		
 		self::activate_classes();
 		self::activate_plugin();
 	}
