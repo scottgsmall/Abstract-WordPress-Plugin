@@ -2,7 +2,9 @@
 
 namespace View;
 
-interface ViewInterface {
+use Library\Singleton\SingletonInterface;
+
+interface ViewInterface extends SingletonInterface {
 
 }
 

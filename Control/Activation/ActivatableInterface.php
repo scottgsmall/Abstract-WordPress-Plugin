@@ -2,13 +2,21 @@
 
 namespace Control\Activation;
 
-interface ActivatableInterface {
+use Library\Singleton\SingletonInterface;
 
-	public static function activate();
+interface ActivatableInterface extends SingletonInterface {
 
-	public static function deactivate();
-	
-	public static function check_prerequisite_plugins();
+	/**
+	 * Prepares sites to use the plugin during single or network-wide activation.
+	 *
+	 * @param bool $network_wide        	
+	 */
+	public function activate( $network_wide );
+
+	/**
+	 * Rolls back activation procedures when de-activating the plugin.
+	 */
+	public function deactivate();
 
 }
 
