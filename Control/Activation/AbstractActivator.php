@@ -4,6 +4,10 @@ namespace Control\Activation;
 
 use Library\Utility\Utility;
 
+/**
+ * Base class for master activator class that activates all the other
+ * activatable classes in the plugin.
+ */
 abstract class AbstractActivator implements ActivatorInterface {
 
 	/**
@@ -17,49 +21,51 @@ abstract class AbstractActivator implements ActivatorInterface {
 	abstract protected function deactivate_plugin();
 
 	/**
-	 * Verify that all other plugins required by this plugin are installed.
-	 *
-	 * @return true if all prerequisite plugins are installed, false if not
+	 * Specify other plugins that must be installed before this one.
+	 * 
+	 * @return array of the form ( plugin_name => plugin_directory_and_file ), e.g.
+	 *         array( 'Abstract WordPress Plugin' => 'Abstract-WordPress-Plugin/abstract-wordpress-plugin.php' )
 	 */
-	abstract protected function check_prerequisite_plugins();
+	abstract protected function get_prerequisite_plugins();
 
 	/**
+	 * Specify classes needing activation/deactivation.
 	 *
-	 * @return array of classes (fully qualified class names) to be activated
-	 *         when this plugin is activated
+	 * @note Specified classes must implement ActivatableInterface.
+	 *
+	 * @return array of classes (fully qualified class names) to be activated/deactivated
+	 *         when this plugin is activated/deactivated.
 	 */
 	abstract protected function get_activatable_classes();
 
 	/**
-	 * Fired during plugin activation.
-	 *
-	 * This method performs all actions necessary during the plugin's activation.
+	 * Perform all actions necessary during the plugin's activation.
 	 *
 	 * @param bool $network_wide        	
 	 */
 	public function activate( $network_wide ) {
 
-		if ( $network_wide && is_multisite() ) {
-			$sites = wp_get_sites( array( 'limit' => false ) );
-			
-			foreach ( $sites as $site ) {
-				switch_to_blog( $site ['blog_id'] );
+		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
+			if ( $network_wide && is_multisite() ) {
+				$sites = wp_get_sites( array( 'limit' => false ) );
+				
+				foreach ( $sites as $site ) {
+					switch_to_blog( $site ['blog_id'] );
+					$this->single_activate( $network_wide );
+					restore_current_blog();
+				}
+			} else {
 				$this->single_activate( $network_wide );
-				restore_current_blog();
 			}
-		} else {
-			$this->single_activate( $network_wide );
 		}
 	}
 
 	/**
-	 * Fired during plugin deactivation.
-	 *
-	 * This method performs all actions necessary during the plugin's deactivation.
+	 * Perform all actions necessary during the plugin's deactivation.
 	 */
 	public function deactivate() {
 
-		if ( ! current_user_can( 'activate_plugins' ) ) {
+		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
 			$this->deactivate_classes();
 			$this->deactivate_plugin();
 			flush_rewrite_rules();
@@ -69,15 +75,15 @@ abstract class AbstractActivator implements ActivatorInterface {
 	/**
 	 * Runs activation code on a new WPMS site when it's created
 	 *
-	 * @mvc Controller
-	 *
 	 * @param int $blog_id        	
 	 */
 	public function activate_new_site( $blog_id ) {
 
-		switch_to_blog( $blog_id );
-		$this->single_activate( true );
-		restore_current_blog();
+		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
+			switch_to_blog( $blog_id );
+			$this->single_activate( true );
+			restore_current_blog();
+		}
 	}
 
 	/**
@@ -85,14 +91,57 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 *
 	 * @param bool $network_wide        	
 	 */
-	protected function single_activate( $network_wide ) {
+	private function single_activate( $network_wide ) {
 
-		if ( current_user_can( 'activate_plugins' ) && $this->check_prerequisite_plugins() ) {
-			$this->activate_classes( $network_wide );
-			flush_rewrite_rules();
+		$this->activate_classes( $network_wide );
+		$this->activate_plugin();
+		flush_rewrite_rules();
+	}
+	
+	/**
+	 * Verify that all other plugins required by this plugin are installed.
+	 *
+	 * @return true if all prerequisite plugins are installed, false if not
+	 */
+	private function check_prerequisite_plugins() {
+	
+		if ( ! self::have_prerequisite_plugins() ) {
+			deactivate_plugins( plugin_basename( __FILE__ ) );
+			if ( isset( $_GET ['activate'] ) ) {
+				unset( $_GET ['activate'] );
+			}
 		}
 	}
-
+	
+	private static function have_prerequisite_plugins() {
+	
+		$have_prerequisites = true;
+		
+		$this->missing_plugins = array();
+		
+		foreach ( self::get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
+			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
+				$this->missing_plugins[] = $plugin_name;
+			}
+		}
+		
+		if ( !empty( $this->missing_plugins ) ) {
+			$have_prerequisites = false;
+			add_action( 'admin_notices', array( $this, 'missing_plugins_notice' ) );
+		}
+		
+		return $have_prerequisites;
+	}
+	
+	public function missing_plugins_notice() {
+		
+		foreach ( $this->missing_plugins as $plugin_name => $plugin_directory_and_file ) {
+			$class = 'notice notice-error';
+			$message = __( "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active" );
+			printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
+		}
+	}
+		
 	private function activate_classes( $network_wide ) {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
@@ -108,6 +157,8 @@ abstract class AbstractActivator implements ActivatorInterface {
 			$class::get_instance()->deactivate();
 		}
 	}
+	
+	private $missing_plugins;
 
 }
 

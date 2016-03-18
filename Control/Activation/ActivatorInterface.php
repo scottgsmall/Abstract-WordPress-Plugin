@@ -2,6 +2,10 @@
 
 namespace Control\Activation;
 
+/**
+ * Interface for master activator class that activates all the other
+ * activatable classes in the plugin.
+ */
 interface ActivatorInterface extends ActivatableInterface {
 	
 	/**
