@@ -1,4 +1,7 @@
 <?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
 /*
  Plugin Name: Abstract Wordpress Plugin
  Plugin URI:  https://github.com/scottgsmall/Abstract-WordPress-Plugin.git
