@@ -8,7 +8,7 @@ abstract class AbstractInstaller implements InstallerInterface {
 
 	abstract protected function uninstall_plugin();
 
-	public static function uninstall() {
+	public function uninstall() {
 
 		if ( current_user_can( 'activate_plugins' ) ) {
 			check_admin_referer( 'bulk-plugins' );

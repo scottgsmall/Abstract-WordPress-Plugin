@@ -145,7 +145,6 @@ abstract class AbstractActivator implements ActivatorInterface {
 	private function activate_classes( $network_wide ) {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
-			assert( Utility::class_implements_interface( $class, ActivatableInterface::class ) );
 			$class::get_instance()->activate( $network_wide );
 		}
 	}
@@ -153,7 +152,6 @@ abstract class AbstractActivator implements ActivatorInterface {
 	private function deactivate_classes() {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
-			assert( Utility::class_implements_interface( $class, ActivatableInterface::class ) );
 			$class::get_instance()->deactivate();
 		}
 	}
