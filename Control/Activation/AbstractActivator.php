@@ -2,7 +2,8 @@
 
 namespace Control\Activation;
 
-use Library\Utility\Utility;
+use View\AdminViewInterface;
+use View\AbstractAdminView;
 
 /**
  * Base class for master activator class that activates all the other
@@ -22,7 +23,7 @@ abstract class AbstractActivator implements ActivatorInterface {
 
 	/**
 	 * Specify other plugins that must be installed before this one.
-	 * 
+	 *
 	 * @return array of the form ( plugin_name => plugin_directory_and_file ), e.g.
 	 *         array( 'Abstract WordPress Plugin' => 'Abstract-WordPress-Plugin/abstract-wordpress-plugin.php' )
 	 */
@@ -93,55 +94,36 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 */
 	private function single_activate( $network_wide ) {
 
-		$this->activate_classes( $network_wide );
-		$this->activate_plugin();
-		flush_rewrite_rules();
-	}
-	
-	/**
-	 * Verify that all other plugins required by this plugin are installed.
-	 *
-	 * @return true if all prerequisite plugins are installed, false if not
-	 */
-	private function check_prerequisite_plugins() {
-	
 		if ( ! self::have_prerequisite_plugins() ) {
+			// abort activation of this plugin on current site
 			deactivate_plugins( plugin_basename( __FILE__ ) );
 			if ( isset( $_GET ['activate'] ) ) {
 				unset( $_GET ['activate'] );
 			}
+		} else {
+			// activate this plugin on current site
+			$this->activate_classes( $network_wide );
+			$this->activate_plugin();
+			flush_rewrite_rules();
 		}
 	}
-	
+
 	private static function have_prerequisite_plugins() {
-	
+
 		$have_prerequisites = true;
-		
-		$this->missing_plugins = array();
 		
 		foreach ( self::get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
 			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
-				$this->missing_plugins[] = $plugin_name;
+				$have_prerequisites = false;
+				$message = "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active";
+				$message_type = AdminViewInterface::MESSAGE_TYPE_ERROR;
+				AbstractAdminView::admin_notice( $message, $message_type );
 			}
-		}
-		
-		if ( !empty( $this->missing_plugins ) ) {
-			$have_prerequisites = false;
-			add_action( 'admin_notices', array( $this, 'missing_plugins_notice' ) );
 		}
 		
 		return $have_prerequisites;
 	}
-	
-	public function missing_plugins_notice() {
-		
-		foreach ( $this->missing_plugins as $plugin_name => $plugin_directory_and_file ) {
-			$class = 'notice notice-error';
-			$message = __( "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active" );
-			printf( '<div class="%1$s"><p>%2$s</p></div>', $class, $message );
-		}
-	}
-		
+
 	private function activate_classes( $network_wide ) {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
@@ -155,7 +137,7 @@ abstract class AbstractActivator implements ActivatorInterface {
 			$class::get_instance()->deactivate();
 		}
 	}
-	
+
 	private $missing_plugins;
 
 }
