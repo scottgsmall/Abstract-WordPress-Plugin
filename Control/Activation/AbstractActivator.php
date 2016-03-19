@@ -112,11 +112,15 @@ abstract class AbstractActivator implements ActivatorInterface {
 
 		$have_prerequisites = true;
 		
-		foreach ( self::get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
+		foreach ( static::get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
 			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
 				$have_prerequisites = false;
 				$message = "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active";
 				$message_type = AdminViewInterface::MESSAGE_TYPE_ERROR;
+				AbstractAdminView::admin_notice( $message, $message_type );
+			} else {
+				$message = "Verified the plugin $plugin_name ($plugin_directory_and_file) is installed and active";
+				$message_type = AdminViewInterface::MESSAGE_TYPE_SUCCESS;
 				AbstractAdminView::admin_notice( $message, $message_type );
 			}
 		}
