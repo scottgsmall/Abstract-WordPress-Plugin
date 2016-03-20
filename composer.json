@@ -6,10 +6,7 @@
   } ],
   "autoload" : {
     "psr-4" : {
-      "Control\\" : "Control/",
-      "Model\\" : "Model/",
-      "View\\" : "View/",
-      "Library\\" : "Library/"
+      "Basis\\" : "Basis/"
     }
   }
 }

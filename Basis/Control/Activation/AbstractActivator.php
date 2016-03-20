@@ -33,6 +33,13 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 *         array( 'Abstract WordPress Plugin' => 'Abstract-WordPress-Plugin/abstract-wordpress-plugin.php' )
 	 */
 	abstract protected function get_prerequisite_plugins();
+	
+	/**
+	 * Specify the name of this plugin.
+	 * 
+	 * @return string in the form 'Foo-WordPress-Plugin/foo-wordpress-plugin.php'
+	 */
+	abstract protected function get_this_plugin();
 
 	/**
 	 * Specify classes needing activation/deactivation.
@@ -102,15 +109,12 @@ abstract class AbstractActivator implements ActivatorInterface {
 		$missing_plugins = $this->get_missing_plugins();
 		
 		if ( ! empty( $missing_plugins ) ) {
-			// abort activation of this plugin on current site
-			$this_plugin = plugin_basename( __FILE__ );
-			$plugin_quantifier = count( $missing_plugins ) > 1 ? 'plugins are' : 'plugin is';
-			$message = "Failed to activate plugin $this_plugin because the following $plugin_quantifier missing:";
-			foreach ( $missing_plugins as $plugin_name => $plugin_directory_and_file ) {
-				$message .= " $plugin_name ($plugin_directory_and_file)";
-			}
-			self::log_message( __METHOD__, $message );
+			// do not activate this plugin on current site
+			$this_plugin = $this->get_this_plugin();
 			deactivate_plugins( $this_plugin );
+			
+			$message = self::build_missing_plugins_message($missing_plugins, $this_plugin);
+			self::log_message( __METHOD__, $message );
 			exit( $message );
 		} else {
 			// activate this plugin on current site
@@ -126,11 +130,18 @@ abstract class AbstractActivator implements ActivatorInterface {
 		
 		foreach ( $this->get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
 			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
-				$missing_plugins [$plugin_name] = $plugin_directory_and_file;
+				$missing_plugins [] = "$plugin_name ($plugin_directory_and_file)";
 			}
 		}
 		
 		return $missing_plugins;
+	}
+
+	private static function build_missing_plugins_message( $missing_plugins, $this_plugin ) {
+
+		$plugin_quantifier = count( $missing_plugins ) > 1 ? 'plugins are' : 'plugin is';
+		$message = "Failed to activate plugin $this_plugin because the following $plugin_quantifier missing: " . implode( ', ', $missing_plugins );
+		return $message;
 	}
 
 	private function have_prerequisite_plugins() {
