@@ -1,15 +1,15 @@
 {
-  "name" : "Abstract-WordPress-Plugin",
+  "name" : "Basis",
   "repositories" : [ {
     "type" : "composer",
     "url" : "https://packagist.org/"
   } ],
-    "autoload": {
-    "psr-4": {
-      "Control\\":"Control/",
-      "Model\\":"Model/",
-      "View\\":"View/",
-      "Library\\":"Library/"
+  "autoload" : {
+    "psr-4" : {
+      "Control\\" : "Control/",
+      "Model\\" : "Model/",
+      "View\\" : "View/",
+      "Library\\" : "Library/"
     }
   }
 }
