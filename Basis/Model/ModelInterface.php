@@ -2,7 +2,9 @@
 
 namespace Basis\Model;
 
-interface ModelInterface {
+use Basis\ComponentInterface;
+
+interface ModelInterface extends ComponentInterface {
 
 }
 

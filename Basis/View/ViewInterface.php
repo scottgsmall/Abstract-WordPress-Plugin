@@ -2,7 +2,9 @@
 
 namespace Basis\View;
 
-interface ViewInterface {
+use Basis\ComponentInterface;
+
+interface ViewInterface extends ComponentInterface {
 
 }
 

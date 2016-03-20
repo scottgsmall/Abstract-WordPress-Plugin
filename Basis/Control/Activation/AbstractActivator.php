@@ -4,15 +4,13 @@ namespace Basis\Control\Activation;
 
 use Basis\View\AdminViewInterface;
 use Basis\View\AbstractAdminView;
-use Basis\Library\Logging\LoggingTrait;
+use Basis\Control\AbstractController;
 
 /**
  * Base class for master activator class that activates all the other
  * activatable classes in the plugin.
  */
-abstract class AbstractActivator implements ActivatorInterface {
-	
-	use LoggingTrait;
+abstract class AbstractActivator extends AbstractController implements ActivatorInterface {
 
 	const DO_LOG_MESSAGES = true;
 
@@ -33,10 +31,10 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 *         array( 'Abstract WordPress Plugin' => 'Abstract-WordPress-Plugin/abstract-wordpress-plugin.php' )
 	 */
 	abstract protected function get_prerequisite_plugins();
-	
+
 	/**
 	 * Specify the name of this plugin.
-	 * 
+	 *
 	 * @return string in the form 'Foo-WordPress-Plugin/foo-wordpress-plugin.php'
 	 */
 	abstract protected function get_this_plugin();
@@ -50,6 +48,16 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 *         when this plugin is activated/deactivated.
 	 */
 	abstract protected function get_activatable_classes();
+
+	public function register_callbacks() {
+		
+		parent::register_callbacks();
+
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+		
+		return $this;
+	}
 
 	/**
 	 * Perform all actions necessary during the plugin's activation.
@@ -113,7 +121,7 @@ abstract class AbstractActivator implements ActivatorInterface {
 			$this_plugin = $this->get_this_plugin();
 			deactivate_plugins( $this_plugin );
 			
-			$message = self::build_missing_plugins_message($missing_plugins, $this_plugin);
+			$message = self::build_missing_plugins_message( $missing_plugins, $this_plugin );
 			self::log_message( __METHOD__, $message );
 			exit( $message );
 		} else {

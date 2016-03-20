@@ -2,8 +2,9 @@
 
 namespace Basis\View;
 
-abstract class AbstractView implements ViewInterface {
+use Basis\AbstractComponent;
 
+abstract class AbstractView extends AbstractComponent implements ViewInterface {
 
 }
 

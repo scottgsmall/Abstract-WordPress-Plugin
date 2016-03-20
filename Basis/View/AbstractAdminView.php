@@ -2,14 +2,11 @@
 
 namespace Basis\View;
 
-use Basis\Library\Logging\LoggingTrait;
 
 /**
  * Base class for Admin views.
  */
 abstract class AbstractAdminView extends AbstractView implements AdminViewInterface {
-	
-	use LoggingTrait;
 
 	public static function admin_notice( $message, $message_type ) {
 

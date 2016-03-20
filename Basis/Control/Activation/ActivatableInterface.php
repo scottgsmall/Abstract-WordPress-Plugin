@@ -2,11 +2,13 @@
 
 namespace Basis\Control\Activation;
 
+use Basis\ComponentInterface;
+
 /**
  * Interface for class that needs to do something when the plugin of
  * which it is a part gets activated or deactivated.
  */
-interface ActivatableInterface {
+interface ActivatableInterface extends ComponentInterface {
 
 	/**
 	 * Prepare to use the plugin during single or network-wide activation.

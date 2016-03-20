@@ -2,12 +2,10 @@
 
 namespace Basis\Model;
 
-use Basis\Library\Logging\LoggingTrait;
+use Basis\AbstractComponent;
 
-abstract class AbstractModel implements ModelInterface {
+abstract class AbstractModel extends AbstractComponent implements ModelInterface {
 	
-	use LoggingTrait;
-
 }
 
 ?>
