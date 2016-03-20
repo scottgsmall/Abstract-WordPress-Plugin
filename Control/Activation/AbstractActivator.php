@@ -4,12 +4,17 @@ namespace Control\Activation;
 
 use View\AdminViewInterface;
 use View\AbstractAdminView;
+use Library\Logging\LoggingTrait;
 
 /**
  * Base class for master activator class that activates all the other
  * activatable classes in the plugin.
  */
 abstract class AbstractActivator implements ActivatorInterface {
+	
+	use LoggingTrait;
+
+	const DO_LOG_MESSAGES = true;
 
 	/**
 	 * Do plugin-specific activation work (if any), other than activating classes.
@@ -94,12 +99,19 @@ abstract class AbstractActivator implements ActivatorInterface {
 	 */
 	private function single_activate( $network_wide ) {
 
-		if ( ! self::have_prerequisite_plugins() ) {
+		$missing_plugins = $this->get_missing_plugins();
+		
+		if ( ! empty( $missing_plugins ) ) {
 			// abort activation of this plugin on current site
-			deactivate_plugins( plugin_basename( __FILE__ ) );
-			if ( isset( $_GET ['activate'] ) ) {
-				unset( $_GET ['activate'] );
+			$this_plugin = plugin_basename( __FILE__ );
+			$plugin_quantifier = count( $missing_plugins ) > 1 ? 'plugins are' : 'plugin is';
+			$message = "Failed to activate plugin $this_plugin because the following $plugin_quantifier missing:";
+			foreach ( $missing_plugins as $plugin_name => $plugin_directory_and_file ) {
+				$message .= " $plugin_name ($plugin_directory_and_file)";
 			}
+			self::log_message( __METHOD__, $message );
+			deactivate_plugins( $this_plugin );
+			exit( $message );
 		} else {
 			// activate this plugin on current site
 			$this->activate_classes( $network_wide );
@@ -108,19 +120,29 @@ abstract class AbstractActivator implements ActivatorInterface {
 		}
 	}
 
-	private static function have_prerequisite_plugins() {
+	private function get_missing_plugins() {
+
+		$missing_plugins = array();
+		
+		foreach ( $this->get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
+			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
+				$missing_plugins [$plugin_name] = $plugin_directory_and_file;
+			}
+		}
+		
+		return $missing_plugins;
+	}
+
+	private function have_prerequisite_plugins() {
 
 		$have_prerequisites = true;
 		
-		foreach ( static::get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
+		foreach ( $this->get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
 			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
 				$have_prerequisites = false;
 				$message = "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active";
 				$message_type = AdminViewInterface::MESSAGE_TYPE_ERROR;
-				AbstractAdminView::admin_notice( $message, $message_type );
-			} else {
-				$message = "Verified the plugin $plugin_name ($plugin_directory_and_file) is installed and active";
-				$message_type = AdminViewInterface::MESSAGE_TYPE_SUCCESS;
+				self::log_message( __METHOD__, $message );
 				AbstractAdminView::admin_notice( $message, $message_type );
 			}
 		}
