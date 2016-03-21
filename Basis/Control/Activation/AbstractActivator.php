@@ -75,9 +75,10 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	public static function activate( $network_wide ) {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-			$class = get_called_class();
-			$activator = $class::get_instance();
-			self::log_message( __METHOD__, "Activating component class $class" );
+			$activator = static::get_instance();
+			$this_plugin = $activator->get_plugin_file();
+			
+			self::log_message( __METHOD__, "Activating plugin $this_plugin using activator of class " . get_class($activator) );
 			
 			if ( $network_wide && is_multisite() ) {
 				$sites = wp_get_sites( array( 'limit' => false ) );
@@ -98,9 +99,12 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	public static function deactivate() {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-			$class = get_called_class();
-			$activator = $class::get_instance();
-			self::log_message( __METHOD__, "Deactivating component class $class" );
+			$activator = static::get_instance();
+			$this_plugin = $activator->get_plugin_file();
+			
+			self::log_message( __METHOD__, "Deactivating plugin $this_plugin using activator of class " . get_class($activator) );
+			
+			deactivate_plugins( $this_plugin );
 			
 			$activator->deactivate_classes();
 			$activator->deactivate_plugin();
@@ -117,11 +121,8 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	public static function activate_new_site( $blog_id ) {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-			$class = get_called_class();
-			$activator = $class::get_instance();
-			
 			switch_to_blog( $blog_id );
-			$activator->single_activate( true );
+			static::get_instance()->single_activate( true );
 			restore_current_blog();
 		}
 	}
@@ -136,12 +137,10 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		$missing_plugins = $this->get_missing_plugins();
 		
 		if ( ! empty( $missing_plugins ) ) {
-			// do not activate this plugin on current site
-			$this_plugin = $this->get_this_plugin();
-			deactivate_plugins( $this_plugin );
-			
-			$message = self::build_missing_plugins_message( $missing_plugins, $this_plugin );
+			// roll back activation this plugin on current site
+			$message = self::build_missing_plugins_message( $missing_plugins, $this->get_plugin_file() );
 			self::log_message( __METHOD__, $message );
+			static::deactivate();
 			exit( $message );
 		} else {
 			// activate this plugin on current site

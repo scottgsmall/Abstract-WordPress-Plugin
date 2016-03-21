@@ -16,7 +16,7 @@ use Basis\Library\Logging\LoggingTrait;
  * @package Basis
  * @subpackage Control\Exceptions
  */
-abstract class AbstractException extends \Exception {
+class BasisException extends \Exception {
 	
 	use LoggingTrait;
 

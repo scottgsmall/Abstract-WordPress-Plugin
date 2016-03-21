@@ -3,14 +3,13 @@
 /**
  * Base class for primary plugin component.
  */
-
 namespace Basis\Model\Plugin;
 
 use Basis\Model\AbstractModel;
 
 /**
  * Base class for primary plugin component.
- * 
+ *
  * @package Basis
  * @subpackage Model\Plugin
  */
@@ -18,10 +17,21 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 
 	/**
 	 * Specify the components of this plugin.
-	 * 
+	 *
 	 * @return array of (singleton) instances of component classes.
 	 */
 	abstract protected function get_plugin_components();
+
+	/**
+	 * Get plugin file name.
+	 *
+	 * @see \Basis\Model\Plugin\PluginInterface::get_plugin_file()
+	 */
+	public function get_plugin_file() {
+
+		assert( is_set( $this->$plugin_file ) );
+		return $this->plugin_file;
+	}
 
 	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
@@ -30,8 +40,10 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 */
 	public function register_callbacks( $plugin_file ) {
 
+		parent::register_callbacks( $plugin_file );
+		
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Registering callbacks for component class " . get_class($component) );
+			self::log_message( __METHOD__, "Registering callbacks for component class " . get_class( $component ) );
 			$component->register_callbacks( $plugin_file );
 		}
 		
@@ -44,7 +56,7 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	public function load_resources() {
 
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Loading resources for component class " . get_class($component) );
+			self::log_message( __METHOD__, "Loading resources for component class " . get_class( $component ) );
 			$component->load_resources();
 		}
 		
@@ -57,12 +69,19 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	public function run() {
 
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Running component class " . get_class($component) );
+			self::log_message( __METHOD__, "Running component class " . get_class( $component ) );
 			$component->run();
 		}
 		
 		return $this;
 	}
+
+	/**
+	 * Name of plugin represented by this instance.
+	 *
+	 * @var string $plugin_file
+	 */
+	private $plugin_file;
 
 }
 

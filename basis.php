@@ -5,7 +5,7 @@
  */
 
 /**
- Plugin Name: Abstract Wordpress Plugin
+ Plugin Name: Basis
  Plugin URI:  https://github.com/scottgsmall/Abstract-WordPress-Plugin.git
  Description: Collection of abstract base classes and libraries upon which to build actual
  WordPress plugins using OO design and MVC pattern.

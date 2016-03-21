@@ -31,11 +31,11 @@ abstract class AbstractInstaller extends AbstractController implements Installer
 	 *
 	 * @see ComponentInterface::register_callbacks()
 	 */
-	public function register_callbacks() {
+	public function register_callbacks( $plugin_file ) {
 
-		parent::register_callbacks();
+		parent::register_callbacks( $plugin_file );
 		
-		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
+		register_uninstall_hook( $plugin_file, array( get_called_class(), 'uninstall' ) );
 		
 		return $this;
 	}

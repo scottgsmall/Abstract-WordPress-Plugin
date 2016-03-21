@@ -25,12 +25,12 @@ interface ActivatableInterface extends ComponentInterface {
 	 *
 	 * @param bool $network_wide        	
 	 */
-	public function activate( $network_wide );
+	public static function activate( $network_wide );
 
 	/**
 	 * Roll back activation procedures when de-activating the plugin.
 	 */
-	public function deactivate();
+	public static function deactivate();
 
 }
 

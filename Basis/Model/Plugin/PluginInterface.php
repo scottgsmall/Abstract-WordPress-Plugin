@@ -15,7 +15,13 @@ use Basis\Model\ModelInterface;
  * @subpackage Model\Plugin
  */
 interface PluginInterface extends ModelInterface {
-
+	
+	/**
+	 * Get plugin file name.
+	 * 
+	 * @return string
+	 */
+	public function get_plugin_file();
 }
 
 ?>
