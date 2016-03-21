@@ -6,7 +6,7 @@
 
 namespace Basis\Library;
 
-use Basis\Control\Exceptions\AbstractException;
+use Basis\Control\Exceptions\BasisException;
 
 /**
  * Exception thrown by library classes.
@@ -14,7 +14,7 @@ use Basis\Control\Exceptions\AbstractException;
  * @package Basis
  * @subpackage Library
  */
-class LibraryException extends AbstractException {
+class LibraryException extends BasisException {
 
 }
 
