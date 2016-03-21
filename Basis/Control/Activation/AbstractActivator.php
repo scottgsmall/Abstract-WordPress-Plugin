@@ -104,8 +104,6 @@ abstract class AbstractActivator extends AbstractController implements Activator
 			
 			self::log_message( __METHOD__, "Deactivating plugin $this_plugin using activator of class " . get_class($activator) );
 			
-			deactivate_plugins( $this_plugin );
-			
 			$activator->deactivate_classes();
 			$activator->deactivate_plugin();
 			
@@ -138,9 +136,10 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		
 		if ( ! empty( $missing_plugins ) ) {
 			// roll back activation this plugin on current site
-			$message = self::build_missing_plugins_message( $missing_plugins, $this->get_plugin_file() );
+			$this_plugin = $this->get_plugin_file();
+			$message = self::build_missing_plugins_message( $missing_plugins, $this_plugin);
 			self::log_message( __METHOD__, $message );
-			static::deactivate();
+			deactivate_plugins( plugin_basename( $this_plugin ) );
 			exit( $message );
 		} else {
 			// activate this plugin on current site
