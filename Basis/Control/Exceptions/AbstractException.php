@@ -1,30 +1,35 @@
 <?php
 
+/**
+ * Base class for exceptions thrown in this plugin.
+ */
+ 
 namespace Basis\Control\Exceptions;
 
 use Basis\Library\Logging\LoggingTrait;
 
+/**
+ * Base class for exceptions thrown in this plugin.
+ * 
+ * Logs each exception to WordPress error log.
+ * 
+ * @package Basis
+ * @subpackage Control\Exceptions
+ */
 abstract class AbstractException extends \Exception {
 	
 	use LoggingTrait;
 
 	/**
-	 *
-	 * @param
-	 *        	message[optional]
-	 *        	
-	 * @param
-	 *        	code[optional]
-	 *        	
-	 * @param
-	 *        	previous[optional]
-	 *        	
+	 * Constructor.
+	 * 
+	 * @see \Exception   	
 	 */
 	public function __construct( $message = null, $code = null, $previous = null ) {
-		
-		// TODO - log message
-		
+
 		parent::__construct( $message = null, $code = null, $previous = null );
+		
+		self::log_message( __METHOD__, $message );
 	}
 
 }

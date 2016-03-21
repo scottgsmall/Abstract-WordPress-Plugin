@@ -1,14 +1,20 @@
 <?php
 
+/**
+ * Base class for activator component responsible for actions related
+ * to activation/deactivation of this plugin.
+ */
+
 namespace Basis\Control\Activation;
 
-use Basis\View\AdminViewInterface;
-use Basis\View\AbstractAdminView;
 use Basis\Control\AbstractController;
 
 /**
- * Base class for master activator class that activates all the other
- * activatable classes in the plugin.
+ * Base class for activator component responsible for actions related
+ * to activation/deactivation of this plugin.
+ * 
+ * @package Basis
+ * @subpackage Control\Activation
  */
 abstract class AbstractActivator extends AbstractController implements ActivatorInterface {
 
@@ -33,13 +39,6 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	abstract protected function get_prerequisite_plugins();
 
 	/**
-	 * Specify the name of this plugin.
-	 *
-	 * @return string in the form 'Foo-WordPress-Plugin/foo-wordpress-plugin.php'
-	 */
-	abstract protected function get_this_plugin();
-
-	/**
 	 * Specify classes needing activation/deactivation.
 	 *
 	 * @note Specified classes must implement ActivatableInterface.
@@ -49,60 +48,80 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	 */
 	abstract protected function get_activatable_classes();
 
-	public function register_callbacks() {
+	/**
+	 * Hook this component's callback functions to WordPress actions and filters.
+	 * 
+	 * @see \Basis\ComponentInterface::register_callbacks()
+	 */
+	public function register_callbacks( $plugin_file ) {
 		
-		parent::register_callbacks();
+		parent::register_callbacks( $plugin_file );
 
-		register_activation_hook( __FILE__, array( $this, 'activate' ) );
-		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
+		$class = get_called_class();
+		
+		self::log_message( __METHOD__, "Registering activation and deactivation callbacks for component class $class of plugin $plugin_file" );
+		
+		register_activation_hook( $plugin_file, array( $class, 'activate' ) );
+		register_deactivation_hook( $plugin_file, array( $class, 'deactivate' ) );
 		
 		return $this;
 	}
 
 	/**
-	 * Perform all actions necessary during the plugin's activation.
-	 *
-	 * @param bool $network_wide        	
+	 * Prepare to use the plugin during single or network-wide activation.
+	 * 
+	 * @see \Basis\Control\Activation\ActivatorInterface::activate()
 	 */
-	public function activate( $network_wide ) {
+	public static function activate( $network_wide ) {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
+			$class = get_called_class();
+			$activator = $class::get_instance();
+			self::log_message( __METHOD__, "Activating component class $class" );
+			
 			if ( $network_wide && is_multisite() ) {
 				$sites = wp_get_sites( array( 'limit' => false ) );
-				
 				foreach ( $sites as $site ) {
 					switch_to_blog( $site ['blog_id'] );
-					$this->single_activate( $network_wide );
+					$activator->single_activate( $network_wide );
 					restore_current_blog();
 				}
 			} else {
-				$this->single_activate( $network_wide );
+				$activator->single_activate( $network_wide );
 			}
 		}
 	}
 
 	/**
-	 * Perform all actions necessary during the plugin's deactivation.
+	 * Roll back activation procedures when de-activating the plugin.
 	 */
-	public function deactivate() {
+	public static function deactivate() {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
-			$this->deactivate_classes();
-			$this->deactivate_plugin();
+			$class = get_called_class();
+			$activator = $class::get_instance();
+			self::log_message( __METHOD__, "Deactivating component class $class" );
+			
+			$activator->deactivate_classes();
+			$activator->deactivate_plugin();
+			
 			flush_rewrite_rules();
 		}
 	}
 
 	/**
 	 * Runs activation code on a new WPMS site when it's created
-	 *
-	 * @param int $blog_id        	
+	 * 
+	 * @see \Basis\Control\Activation\ActivatorInterface::activate_new_site()
 	 */
-	public function activate_new_site( $blog_id ) {
+	public static function activate_new_site( $blog_id ) {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
+			$class = get_called_class();
+			$activator = $class::get_instance();
+			
 			switch_to_blog( $blog_id );
-			$this->single_activate( true );
+			$activator->single_activate( true );
 			restore_current_blog();
 		}
 	}
@@ -132,6 +151,12 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		}
 	}
 
+	/**
+	 * Determine which of the plugins required by this one, if any, are missing
+	 * from the current site.
+	 * 
+	 * @return array
+	 */
 	private function get_missing_plugins() {
 
 		$missing_plugins = array();
@@ -145,6 +170,12 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		return $missing_plugins;
 	}
 
+	/**
+	 * Construct a message describing the missing plugins.
+	 * 
+	 * @param array $missing_plugins
+	 * @param string $this_plugin
+	 */
 	private static function build_missing_plugins_message( $missing_plugins, $this_plugin ) {
 
 		$plugin_quantifier = count( $missing_plugins ) > 1 ? 'plugins are' : 'plugin is';
@@ -152,23 +183,11 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		return $message;
 	}
 
-	private function have_prerequisite_plugins() {
-
-		$have_prerequisites = true;
-		
-		foreach ( $this->get_prerequisite_plugins() as $plugin_name => $plugin_directory_and_file ) {
-			if ( ! is_plugin_active( $plugin_directory_and_file ) ) {
-				$have_prerequisites = false;
-				$message = "This plugin requires the plugin $plugin_name ($plugin_directory_and_file) to be installed and active";
-				$message_type = AdminViewInterface::MESSAGE_TYPE_ERROR;
-				self::log_message( __METHOD__, $message );
-				AbstractAdminView::admin_notice( $message, $message_type );
-			}
-		}
-		
-		return $have_prerequisites;
-	}
-
+	/**
+	 * Activate the activatable classes contained in this plugin.
+	 * 
+	 * @param bool $network_wide
+	 */
 	private function activate_classes( $network_wide ) {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
@@ -176,14 +195,17 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		}
 	}
 
+	/**
+	 * Deactivate the activatable classes contained in this plugin.
+	 *
+	 * @param bool $network_wide
+	 */
 	private function deactivate_classes() {
 
 		foreach ( $this->get_activatable_classes() as $class ) {
 			$class::get_instance()->deactivate();
 		}
 	}
-
-	private $missing_plugins;
 
 }
 

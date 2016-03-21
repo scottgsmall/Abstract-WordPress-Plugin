@@ -1,12 +1,22 @@
 <?php
 
+/**
+ * Interface for activatable component, i.e. a component that needs
+ * to do something when the plugin of which it is a part gets activated
+ * or deactivated.
+ */
+
 namespace Basis\Control\Activation;
 
 use Basis\ComponentInterface;
 
 /**
- * Interface for class that needs to do something when the plugin of
- * which it is a part gets activated or deactivated.
+ * Interface for activatable component, i.e. a component that needs 
+ * to do something when the plugin of which it is a part gets activated 
+ * or deactivated.
+ * 
+ * @package Basis
+ * @subpackage Control\Activation
  */
 interface ActivatableInterface extends ComponentInterface {
 

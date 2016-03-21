@@ -1,13 +1,25 @@
 <?php
 
-namespace Basis\View;
-
-
 /**
  * Base class for Admin views.
  */
+
+namespace Basis\View;
+
+/**
+ * Base class for Admin views.
+ * 
+ * @package Basis
+ * @subpackage View
+ */
 abstract class AbstractAdminView extends AbstractView implements AdminViewInterface {
 
+	/**
+	 * Display a notice near the top of admin page.
+	 *
+	 * @see AdminViewInterface
+	 *
+	 */
 	public static function admin_notice( $message, $message_type ) {
 
 		if ( empty( self::$admin_notices ) ) {
@@ -19,6 +31,9 @@ abstract class AbstractAdminView extends AbstractView implements AdminViewInterf
 		self::$admin_notices [] = array( 'message' => $message, 'class' => $class );
 	}
 
+	/**
+	 * Display admin notices.
+	 */
 	public static function display_admin_notices() {
 
 		foreach ( self::$admin_notices as $notice ) {
@@ -26,6 +41,11 @@ abstract class AbstractAdminView extends AbstractView implements AdminViewInterf
 		}
 	}
 
+	/**
+	 * Specify HTML class to be applied to messages of the specified message type
+	 * 
+	 * @param string $message_type
+	 */
 	private static function get_notice_class( $message_type ) {
 
 		$notice_class = 'notice';
@@ -39,6 +59,13 @@ abstract class AbstractAdminView extends AbstractView implements AdminViewInterf
 		return $notice_class;
 	}
 
+	/**
+	 * Determine whether specified message type is valid.
+	 * 
+	 * @param string $message_type
+	 * 
+	 * @return bool true if valid, false if not
+	 */
 	private static function is_valid_message_type( $message_type ) {
 
 		switch ( $message_type ) {
@@ -52,6 +79,9 @@ abstract class AbstractAdminView extends AbstractView implements AdminViewInterf
 		return false;
 	}
 
+	/**
+	 * List of admin notices to display.
+	 */
 	private static $admin_notices = array();
 
 }

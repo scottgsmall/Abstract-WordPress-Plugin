@@ -1,41 +1,55 @@
 <?php
 
+/**
+ * Base class for component responsible for installation and deinstallation
+ * of this plugin.
+ */
+
 namespace Basis\Control\Installation;
 
 use Basis\Control\AbstractController;
+
 /**
- * Base class for class responsible for installation and deinstallation
+ * Base class for component responsible for installation and deinstallation
  * of this plugin.
+ * 
+ * @package Basis
+ * @subpackage Control\Installation
  */
 abstract class AbstractInstaller extends AbstractController implements InstallerInterface {
-	
+
 	/**
-	 * Do the actual uninstallation of this plugin. 
-	 * 
+	 * Do the actual uninstallation of this plugin.
+	 *
+	 *
 	 * @note This method is called after verifying authority to uninstall.
 	 */
 	abstract protected function uninstall_plugin();
-	
+
+	/**
+	 * Hook this component's callback functions to WordPress actions and filters.
+	 *
+	 * @see ComponentInterface::register_callbacks()
+	 */
 	public function register_callbacks() {
-	
+
 		parent::register_callbacks();
-	
+		
 		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
-	
+		
 		return $this;
 	}
 
+	/**
+	 * Clear out any rewrite rules added by the plugin, options and/or
+	 * settings specific to to the plugin, other database values that
+	 * need to be removed, etc.
+	 */
 	public function uninstall() {
-
-		// Verify authority to uninstall this plugin
+		
 		if ( is_admin() && current_user_can( 'delete_plugins' ) ) {
-			check_admin_referer( 'bulk-plugins' );
-			
-			// Important: Check if the file is the one
-			// that was registered during the uninstall hook.
-			if ( __FILE__ == WP_UNINSTALL_PLUGIN ) {
-				static::uninstall_plugin();
-			}
+			self::log_message( __METHOD__, '' );
+			$this->uninstall_plugin();
 		}
 	}
 

@@ -1,11 +1,26 @@
 <?php
 
+/**
+ * Class providing various static utility methods.
+ */
+
 namespace Basis\Library\Utility;
 
 use Basis\Library\LibraryException;
 
+/**
+ * Class providing various static utility methods.
+ * 
+ * @package Basis
+ * @subpackage Library\Utility
+ */
 abstract class Utility {
 
+	/**
+	 * Get URL of current page.
+	 * 
+	 * @see UtilityInterface::current_page_url()
+	 */
 	public static final function current_page_url() {
 
 		$pageURL = 'http';
@@ -26,6 +41,11 @@ abstract class Utility {
 		return $pageURL;
 	}
 
+	/**
+	 * Answer whether the specified class implements the specified interface.
+	 * 
+	 * @see UtilityInterface::class_implements_interface()
+	 */
 	public static final function class_implements_interface( $class, $interface ) {
 
 		$result = false;

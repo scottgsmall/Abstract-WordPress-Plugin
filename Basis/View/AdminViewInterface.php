@@ -1,9 +1,16 @@
 <?php
 
+/**
+ * Interface for Admin views.
+ */
+
 namespace Basis\View;
 
 /**
  * Interface for Admin views.   
+ * 
+ * @package Basis
+ * @subpackage View
  */
 interface AdminViewInterface extends ViewInterface {
 	
