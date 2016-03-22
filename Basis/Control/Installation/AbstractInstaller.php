@@ -45,11 +45,10 @@ abstract class AbstractInstaller extends AbstractController implements Installer
 	 * settings specific to to the plugin, other database values that
 	 * need to be removed, etc.
 	 */
-	public function uninstall() {
+	public static function uninstall() {
 		
 		if ( is_admin() && current_user_can( 'delete_plugins' ) ) {
-			self::log_message( __METHOD__, '' );
-			$this->uninstall_plugin();
+			static::get_instance()->uninstall_plugin();
 		}
 	}
 

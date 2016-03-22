@@ -26,7 +26,7 @@ interface InstallerInterface extends ComponentInterface {
 	 * settings specific to to the plugin, other database values that
 	 * need to be removed, etc.
 	 */
-	public function uninstall();
+	public static function uninstall();
 
 }
 
