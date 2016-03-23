@@ -42,7 +42,7 @@ abstract class Utility {
 	}
 
 	/**
-	 * Answer whether the specified class implements the specified interface.
+	 * Determine whether the specified class implements the specified interface.
 	 * 
 	 * @see UtilityInterface::class_implements_interface()
 	 */
@@ -60,6 +60,11 @@ abstract class Utility {
 		}
 		
 		return $result;
+	}
+	
+	public static final function is_alphanumeric_string( $value ) {
+		
+		return is_string( $value ) && preg_match( '/^[A-Z0-9]{4,64}$/i', $value );
 	}
 
 }

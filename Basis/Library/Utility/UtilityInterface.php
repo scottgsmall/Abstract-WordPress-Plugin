@@ -21,7 +21,7 @@ interface UtilityInterface {
 	public static final function current_page_url();
 
 	/**
-	 * Answer whether the specified class implements the specified interface.
+	 * Determine whether the specified class implements the specified interface.
 	 *
 	 * @param string $class        	
 	 * @param string $interface        	
@@ -30,6 +30,13 @@ interface UtilityInterface {
 	 * @return bool 
 	 */
 	public static final function class_implements_interface( $class, $interface );
+	
+	/**
+	 * Determine whether the specified value is an alphanumeric string.
+	 * 
+	 * @param unknown $value
+	 */
+	public static final function is_alphanumeric_string( $value );
 
 }
 
