@@ -20,18 +20,7 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 *
 	 * @return array of (singleton) instances of component classes.
 	 */
-	abstract protected function get_plugin_components();
-
-	/**
-	 * Get plugin file name.
-	 *
-	 * @see \Basis\Model\Plugin\PluginInterface::get_plugin_file()
-	 */
-	public function get_plugin_file() {
-
-		assert( is_set( $this->$plugin_file ) );
-		return $this->plugin_file;
-	}
+	abstract protected function get_plugin_component_instances();
 
 	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
@@ -43,7 +32,6 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 		parent::register_callbacks( $plugin_file );
 		
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Registering callbacks for component class " . get_class( $component ) );
 			$component->register_callbacks( $plugin_file );
 		}
 		
@@ -56,7 +44,6 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	public function load_resources() {
 
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Loading resources for component class " . get_class( $component ) );
 			$component->load_resources();
 		}
 		
@@ -69,11 +56,24 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	public function run() {
 
 		foreach ( $this->get_plugin_components() as $component ) {
-			self::log_message( __METHOD__, "Running component class " . get_class( $component ) );
 			$component->run();
 		}
 		
 		return $this;
+	}
+	
+	/**
+	 * Cache plugin component instances.
+	 */
+	private function get_plugin_components() {
+		
+		static $plugin_components;
+		
+		if ( !isset($plugin_components ) ) {
+			$plugin_components = $this->get_plugin_component_instances();
+		}
+		
+		return $plugin_components;
 	}
 
 	/**

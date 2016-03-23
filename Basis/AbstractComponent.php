@@ -63,7 +63,7 @@ abstract class AbstractComponent implements ComponentInterface, SingletonInterfa
 		return $this;
 	}
 
-	protected function get_plugin_file() {
+	public function get_plugin_file() {
 
 		if ( ! isset( $this->plugin_file ) ) {
 			throw new BasisException( 'Plugin file is not defined' );

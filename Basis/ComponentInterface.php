@@ -34,6 +34,14 @@ interface ComponentInterface {
 	 * Perform this component's function.
 	 */
 	public function run();
+	
+	/**
+	 * Get the name of the main plugin file for the plugin of which
+	 * this component is a part.
+	 *
+	 * @return string
+	 */
+	public function get_plugin_file();
 }
 
 ?>

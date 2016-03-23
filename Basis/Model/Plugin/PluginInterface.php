@@ -16,12 +16,7 @@ use Basis\Model\ModelInterface;
  */
 interface PluginInterface extends ModelInterface {
 	
-	/**
-	 * Get plugin file name.
-	 * 
-	 * @return string
-	 */
-	public function get_plugin_file();
+
 }
 
 ?>
