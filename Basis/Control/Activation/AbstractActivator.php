@@ -80,7 +80,7 @@ abstract class AbstractActivator extends AbstractController implements Activator
 			$activator = static::get_instance();
 			
 			if ( self::DO_LOG_ACTIVATION ) {
-				self::log_message( __METHOD__, 'Activating plugin ' . $activator->get_plugin_file() );
+				self::log_message( __METHOD__, 'Activating plugin ' . plugin_basename( $activator->get_plugin_file() ) );
 			}
 			
 			if ( $network_wide && is_multisite() ) {
@@ -105,7 +105,7 @@ abstract class AbstractActivator extends AbstractController implements Activator
 			$activator = static::get_instance();
 			
 			if ( self::DO_LOG_ACTIVATION ) {
-				self::log_message( __METHOD__, 'Dectivating plugin ' . $activator->get_plugin_file() );
+				self::log_message( __METHOD__, 'Dectivating plugin ' . plugin_basename( $activator->get_plugin_file() ) );
 			}
 			
 			$activator->deactivate_classes();

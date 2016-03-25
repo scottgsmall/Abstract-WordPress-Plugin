@@ -63,6 +63,11 @@ abstract class AbstractComponent implements ComponentInterface, SingletonInterfa
 		return $this;
 	}
 
+	/**
+	 * Get fully qualified name of main plugin file for plugin of which this class is a component.
+	 * 
+	 * @see \Basis\ComponentInterface::get_plugin_file()
+	 */
 	public function get_plugin_file() {
 
 		if ( ! isset( $this->plugin_file ) ) {
