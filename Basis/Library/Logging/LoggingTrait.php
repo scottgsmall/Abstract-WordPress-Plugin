@@ -22,8 +22,9 @@ trait LoggingTrait {
 	public static function log_message( $method, $message ) {
 
 		if ( WP_DEBUG ) {
-			$class = get_called_class();
-			error_log( "$class::$method:$message" );
+			$class = addslashes( get_called_class() );
+			$method = addslashes( $method );
+			error_log( sprintf( '%s::%s:%s', $class, $method, $message ) );
 		}
 	}
 

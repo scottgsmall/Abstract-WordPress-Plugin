@@ -20,7 +20,7 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 *
 	 * @return array of (singleton) instances of component classes.
 	 */
-	abstract protected function get_plugin_component_instances();
+	abstract protected function get_plugin_components();
 
 	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
@@ -60,20 +60,6 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 		}
 		
 		return $this;
-	}
-	
-	/**
-	 * Cache plugin component instances.
-	 */
-	private function get_plugin_components() {
-		
-		static $plugin_components;
-		
-		if ( !isset($plugin_components ) ) {
-			$plugin_components = $this->get_plugin_component_instances();
-		}
-		
-		return $plugin_components;
 	}
 
 	/**

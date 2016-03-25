@@ -3,12 +3,11 @@
 /**
  * Trait providing singleton support for using class.
  */
-
 namespace Basis\Library\Singleton;
 
 /**
  * Trait providing singleton support for using class.
- * 
+ *
  * @package Basis
  * @subpackage Library\Singleton
  */
@@ -16,14 +15,14 @@ trait SingletonTrait {
 
 	/**
 	 * Get singleton instance of this class.
-	 * 
+	 *
 	 * @see SingletonInterface::get_instance()
 	 */
-	final public static function get_instance() {
+	public static function get_instance() {
 
-		static $instance = null;
+		static $instance;
 		
-		if ( null === $instance ) {
+		if ( ! isset( $instance ) ) {
 			$instance = new static();
 		}
 		

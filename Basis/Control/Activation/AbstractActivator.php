@@ -4,7 +4,6 @@
  * Base class for activator component responsible for actions related
  * to activation/deactivation of this plugin.
  */
-
 namespace Basis\Control\Activation;
 
 use Basis\Control\AbstractController;
@@ -12,13 +11,18 @@ use Basis\Control\AbstractController;
 /**
  * Base class for activator component responsible for actions related
  * to activation/deactivation of this plugin.
- * 
+ *
  * @package Basis
  * @subpackage Control\Activation
  */
 abstract class AbstractActivator extends AbstractController implements ActivatorInterface {
 
-	const DO_LOG_MESSAGES = true;
+	/**
+	 * Indicated whether to log plugin activation and deactivation to WordPress error log.
+	 *
+	 * @var bool
+	 */
+	const DO_LOG_ACTIVATION = true;
 
 	/**
 	 * Do plugin-specific activation work (if any), other than activating classes.
@@ -50,16 +54,14 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
-	 * 
+	 *
 	 * @see \Basis\ComponentInterface::register_callbacks()
 	 */
 	public function register_callbacks( $plugin_file ) {
-		
-		parent::register_callbacks( $plugin_file );
 
-		$class = get_called_class();
+		parent::register_callbacks( $plugin_file );
 		
-		self::log_message( __METHOD__, "Registering activation and deactivation callbacks for component class $class of plugin $plugin_file" );
+		$class = get_called_class();
 		
 		register_activation_hook( $plugin_file, array( $class, 'activate' ) );
 		register_deactivation_hook( $plugin_file, array( $class, 'deactivate' ) );
@@ -69,16 +71,17 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 	/**
 	 * Prepare to use the plugin during single or network-wide activation.
-	 * 
+	 *
 	 * @see \Basis\Control\Activation\ActivatorInterface::activate()
 	 */
 	public static function activate( $network_wide ) {
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
 			$activator = static::get_instance();
-			$this_plugin = $activator->get_plugin_file();
 			
-			self::log_message( __METHOD__, "Activating plugin $this_plugin using activator of class " . get_class($activator) );
+			if ( self::DO_LOG_ACTIVATION ) {
+				self::log_message( __METHOD__, 'Activating plugin ' . $activator->get_plugin_file() );
+			}
 			
 			if ( $network_wide && is_multisite() ) {
 				$sites = wp_get_sites( array( 'limit' => false ) );
@@ -100,9 +103,10 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 		if ( is_admin() && current_user_can( 'activate_plugins' ) ) {
 			$activator = static::get_instance();
-			$this_plugin = $activator->get_plugin_file();
 			
-			self::log_message( __METHOD__, "Deactivating plugin $this_plugin using activator of class " . get_class($activator) );
+			if ( self::DO_LOG_ACTIVATION ) {
+				self::log_message( __METHOD__, 'Dectivating plugin ' . $activator->get_plugin_file() );
+			}
 			
 			$activator->deactivate_classes();
 			$activator->deactivate_plugin();
@@ -113,7 +117,7 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 	/**
 	 * Runs activation code on a new WPMS site when it's created
-	 * 
+	 *
 	 * @see \Basis\Control\Activation\ActivatorInterface::activate_new_site()
 	 */
 	public static function activate_new_site( $blog_id ) {
@@ -135,9 +139,9 @@ abstract class AbstractActivator extends AbstractController implements Activator
 		$missing_plugins = $this->get_missing_plugins();
 		
 		if ( ! empty( $missing_plugins ) ) {
-			// roll back activation this plugin on current site
+			// one or more plugin required by this one is missing - roll back activation of this plugin on current site
 			$this_plugin = $this->get_plugin_file();
-			$message = self::build_missing_plugins_message( $missing_plugins, $this_plugin);
+			$message = self::build_missing_plugins_message( $missing_plugins, $this_plugin );
 			self::log_message( __METHOD__, $message );
 			deactivate_plugins( plugin_basename( $this_plugin ) );
 			exit( $message );
@@ -152,7 +156,7 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	/**
 	 * Determine which of the plugins required by this one, if any, are missing
 	 * from the current site.
-	 * 
+	 *
 	 * @return array
 	 */
 	private function get_missing_plugins() {
@@ -170,9 +174,9 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 	/**
 	 * Construct a message describing the missing plugins.
-	 * 
-	 * @param array $missing_plugins
-	 * @param string $this_plugin
+	 *
+	 * @param array $missing_plugins        	
+	 * @param string $this_plugin        	
 	 */
 	private static function build_missing_plugins_message( $missing_plugins, $this_plugin ) {
 
@@ -183,8 +187,8 @@ abstract class AbstractActivator extends AbstractController implements Activator
 
 	/**
 	 * Activate the activatable classes contained in this plugin.
-	 * 
-	 * @param bool $network_wide
+	 *
+	 * @param bool $network_wide        	
 	 */
 	private function activate_classes( $network_wide ) {
 
@@ -196,7 +200,7 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	/**
 	 * Deactivate the activatable classes contained in this plugin.
 	 *
-	 * @param bool $network_wide
+	 * @param bool $network_wide        	
 	 */
 	private function deactivate_classes() {
 
