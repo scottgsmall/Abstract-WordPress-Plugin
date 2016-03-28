@@ -8,7 +8,6 @@
 
 namespace Basis\Control\Activation;
 
-use Basis\ComponentInterface;
 
 /**
  * Interface for activatable component, i.e. a component that needs 
@@ -18,7 +17,7 @@ use Basis\ComponentInterface;
  * @package Basis
  * @subpackage Control\Activation
  */
-interface ActivatableInterface extends ComponentInterface {
+interface ActivatableInterface  {
 
 	/**
 	 * Prepare to use the plugin during single or network-wide activation.
