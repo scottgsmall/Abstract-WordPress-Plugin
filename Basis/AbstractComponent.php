@@ -34,10 +34,8 @@ abstract class AbstractComponent implements ComponentInterface, SingletonInterfa
 	 *
 	 * @see \Basis\ComponentInterface::register_callbacks()
 	 */
-	public function register_callbacks( $plugin_file ) {
+	public function register_callbacks() {
 
-		$this->plugin_file = $plugin_file;
-		
 		return $this;
 	}
 
@@ -64,8 +62,24 @@ abstract class AbstractComponent implements ComponentInterface, SingletonInterfa
 	}
 
 	/**
+	 * Tell this component what plugin it is a part of.
+	 *
+	 * @see \Basis\ComponentInterface::set_plugin_file()
+	 */
+	public function set_plugin_file( $plugin_file ) {
+
+		if ( ! file_exists( $plugin_file ) ) {
+			throw new BasisException( "Plugin file $plugin_file does not exist" );
+		} else {
+			$this->plugin_file = $plugin_file;
+		}
+		
+		return $this;
+	}
+
+	/**
 	 * Get fully qualified name of main plugin file for plugin of which this class is a component.
-	 * 
+	 *
 	 * @see \Basis\ComponentInterface::get_plugin_file()
 	 */
 	public function get_plugin_file() {

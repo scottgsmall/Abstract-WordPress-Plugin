@@ -19,19 +19,34 @@ namespace Basis;
 interface ComponentInterface {
 
 	/**
+	 * Tell this component what plugin it is a part of.
+	 * 
+	 * @param string $plugin_file path to main plugin file
+	 * 
+	 * @return $this
+	 */
+	public function set_plugin_file( $plugin_file );
+	
+	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
 	 * 
 	 * @param $plugin_file path to main plugin file
+	 * 
+	 * @return $this
 	 */
-	public function register_callbacks( $plugin_file );
+	public function register_callbacks();
 	
 	/**
 	 * Load resources used by this component.
+	 * 
+	 * @return $this
 	 */
 	public function load_resources();
 	
 	/**
 	 * Perform this component's function.
+	 * 
+	 * @return $this
 	 */
 	public function run();
 	

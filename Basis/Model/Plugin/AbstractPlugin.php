@@ -21,18 +21,34 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 * @return array of (singleton) instances of component classes.
 	 */
 	abstract protected function get_plugin_components();
+	
+	/**
+	 * Tell this component what plugin it is a part of.
+	 *
+	 * @see \Basis\ComponentInterface::set_plugin_file()
+	 */
+	public function set_plugin_file( $plugin_file ) {
+	
+		parent::set_plugin_file( $plugin_file );
+		
+		foreach ( $this->get_plugin_components() as $component ) {
+			$component->set_plugin_file( $plugin_file );
+		}
+	
+		return $this;
+	}
 
 	/**
 	 * Hook this component's callback functions to WordPress actions and filters.
 	 *
 	 * @see ComponentInterface::register_callbacks()
 	 */
-	public function register_callbacks( $plugin_file ) {
+	public function register_callbacks() {
 
-		parent::register_callbacks( $plugin_file );
+		parent::register_callbacks();
 		
 		foreach ( $this->get_plugin_components() as $component ) {
-			$component->register_callbacks( $plugin_file );
+			$component->register_callbacks();
 		}
 		
 		return $this;
@@ -43,6 +59,8 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 */
 	public function load_resources() {
 
+		parent::load_resources();
+		
 		foreach ( $this->get_plugin_components() as $component ) {
 			$component->load_resources();
 		}
@@ -55,19 +73,14 @@ abstract class AbstractPlugin extends AbstractModel implements PluginInterface {
 	 */
 	public function run() {
 
+		parent::run();
+		
 		foreach ( $this->get_plugin_components() as $component ) {
 			$component->run();
 		}
 		
 		return $this;
 	}
-
-	/**
-	 * Name of plugin represented by this instance.
-	 *
-	 * @var string $plugin_file
-	 */
-	private $plugin_file;
 
 }
 

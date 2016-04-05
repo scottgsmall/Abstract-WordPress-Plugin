@@ -57,11 +57,12 @@ abstract class AbstractActivator extends AbstractController implements Activator
 	 *
 	 * @see \Basis\ComponentInterface::register_callbacks()
 	 */
-	public function register_callbacks( $plugin_file ) {
+	public function register_callbacks() {
 
-		parent::register_callbacks( $plugin_file );
+		parent::register_callbacks();
 		
 		$class = get_called_class();
+		$plugin_file = $this->get_plugin_file();
 		
 		register_activation_hook( $plugin_file, array( $class, 'activate' ) );
 		register_deactivation_hook( $plugin_file, array( $class, 'deactivate' ) );

@@ -11,9 +11,9 @@ use Basis\Library\Logging\LoggingTrait;
  */
 class Session implements SingletonInterface {
 	
-	use SingletonTrait;
 	use LoggingTrait;
-
+	use SingletonTrait;
+	
 	public function __get( $name ) {
 
 		return isset( $_SESSION[$name] ) ? $_SESSION[$name]  : null;
@@ -56,6 +56,8 @@ class Session implements SingletonInterface {
 	 * Protected constructor for singleton class.
 	 */
 	protected function __construct() {
+		
+		parent::__construct();
 
 		$this->session_started = session_start();
 		
