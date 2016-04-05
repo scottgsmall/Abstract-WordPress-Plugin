@@ -28,10 +28,16 @@ trait SingletonTrait {
 		
 		return $instance;
 	}
+	
+	/**
+	 * Protected constructor for singleton class.
+	 */
+	protected function __construct() {
+		
+	}
 
 	/**
-	 * Private clone method to prevent cloning of the instance of the
-	 * *Singleton* instance.
+	 * Private clone method to prevent cloning of the singleton instance.
 	 *
 	 * @return void
 	 */
@@ -40,7 +46,7 @@ trait SingletonTrait {
 	}
 
 	/**
-	 * Private unserialize method to prevent unserializing of the *Singleton*
+	 * Private unserialize method to prevent unserializing of the singleton
 	 * instance.
 	 *
 	 * @return void
